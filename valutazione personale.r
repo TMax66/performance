@@ -8,39 +8,6 @@ library(gt)
  
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 # valdip <- read_excel("PROGRAMMAZIONE/Relazione Performances 2020/VALUTAZIONE DIPENDENTI ANNO 2020 - NVP  SEDUTA DEL 12.03.2021.xls", 
 #                      col_types = c("text", "text", "text", 
 #                                    "text", "numeric", "numeric"))
@@ -235,7 +202,7 @@ valdip %>%
   count() %>%  
   pivot_wider(names_from = score, values_from = n, values_fill = 0) %>% 
   rowwise() %>% 
-  mutate(total = rowSums(across(where(is.numeric)))) %>%  
+  mutate(total = rowSums(across(where(is.numeric)))) %>%  View()
   write.xlsx("scorebydip.xls")
   
 
@@ -269,7 +236,7 @@ valdip %>%
   count() %>% 
   pivot_wider(names_from = score, values_from = n, values_fill = 0) %>% 
   rowwise() %>% 
-  mutate(total = rowSums(across(where(is.numeric)))) %>%  
+  mutate(total = rowSums(across(where(is.numeric)))) %>%  View()
   write.xlsx("scorebydipc.xls")
 
 
