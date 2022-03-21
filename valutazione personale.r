@@ -30,11 +30,11 @@ strutture <- read_excel("strutture.xlsx")
 
 
 
-dati21 <- valdip %>% 
-  filter(ANNO == 2021)
+dati20_21 <- valdip %>% 
+  filter(ANNO > 2019)
 
 
-valdip <- dati21 %>% 
+valdip <- dati20_21 %>% 
   mutate(REPARTO = recode(REPARTO,
                           "S.T. PIACENZA E PARMA -" = "SEDE TERRITORIALE DI PIACENZA - PARMA",
                           "S.T. PIACENZA E PARMA - - S.T. PARMA" = "SEDE TERRITORIALE DI PIACENZA - PARMA", 
@@ -108,7 +108,7 @@ valdip <- dati21 %>%
 
 valdip %>% 
    mutate(dirigenza = ifelse(is.na(CATEGORIA), "DIRIGENZA", "COMPARTO")) %>%  
-   filter(dirigenza == "COMPARTO") %>% 
+   filter(dirigenza == "DIRIGENZA") %>% 
    group_by(ANNO) %>% 
    summarise(min = min(TOT,na.rm=T), 
                        "25°percentile" = quantile(TOT, 0.25, na.rm = T), 
