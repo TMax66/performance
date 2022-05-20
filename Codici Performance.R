@@ -31,6 +31,16 @@ mutate(Avanzamento = ifelse(Avanzamento == 0.5, 1, Avanzamento))  %>%
   mutate(Avanzamento = ifelse(flag == TRUE,  0.7, Avanzamento), 
          Avanzamento = ifelse(flag2 == TRUE, 0.7, Avanzamento)) 
 
+library(openxlsx)
+perf %>% 
+  filter(MacroArea== "1 GARANTIRE L' ATTIVITA' ISTITUZIONALE IN MODO EFFICACE ED APPROPRIATO ") %>% 
+  select(Obiettivo, Azione, Indicatore) %>% 
+  distinct() %>%  
+  write.xlsx("mA1.xlsx")
+
+
+
+
 
 
 
@@ -137,14 +147,33 @@ dt <- perf %>%
   # dplyr::summarise(n = dplyr::n(), .groups = "drop") %>%
   # dplyr::filter(n > 1L) %>% View()
   
+library(kableExtra)
+library(knitr)
+library(stringr)
 
 perf %>% 
+  # mutate( #MacroArea = gsub('[0-9]+', '', MacroArea),
+  #        MacroArea = str_to_sentence(MacroArea))  %>% 
   filter(Periodo == 4) %>% 
-  group_by(MacroArea) %>% 
-  summarise(media = mean(Avanzamento,na.rm  = T)) %>% View() 
-  ungroup %>% 
-  add_row(MacroArea = 'Livello Sintetico di Ente', !!! colMeans(.[-1], na.rm = TRUE)) %>%  View()
-gt()   
+  group_by(MacroArea, Dipartimento) %>% 
+  summarise("% Ragiungimento obiettivo" = mean(Avanzamento,na.rm  = T)) %>% 
+  # ungroup %>%  
+  # add_row(MacroArea = 'Livello Sintetico di Ente', !!! colMeans(.[-1], na.rm = TRUE)) %>% 
+  gt() %>% 
+  # fmt_number(columns = "% Ragiungimento obiettivo",
+  #            decimals = 2) %>% 
+  # fmt_percent(
+  #   columns = "% Ragiungimento obiettivo",
+  #   decimals = 2
+  # ) %>% 
+ gtsave("t2.rtf")
+  
+  # kbl("latex", digits = 2,
+  #     col.names = c("Macro Area", "% di raggiungimento degli obiettivi
+  #                    (media complessiva tra strutture, obiettivi e indicatori)")) %>% 
+  # kable_styling(latex_options="scale_down", font_size = 3)  
+   
+ 
 
 
 # (perf %>% 

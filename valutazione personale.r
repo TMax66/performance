@@ -108,14 +108,16 @@ valdip <- dati20_21 %>%
 
 valdip %>% 
    mutate(dirigenza = ifelse(is.na(CATEGORIA), "DIRIGENZA", "COMPARTO")) %>%  
-   filter(dirigenza == "DIRIGENZA") %>% 
+   #filter(dirigenza == "DIRIGENZA") %>% 
    group_by(ANNO) %>% 
    summarise(min = min(TOT,na.rm=T), 
                        "25°percentile" = quantile(TOT, 0.25, na.rm = T), 
                        "mediana" = median(TOT,na.rm=T), 
                        "75°percentile" = quantile(TOT, 0.75, na.rm=T),
-                       max = max(TOT,na.rm=T)) %>% 
+                       max = max(TOT,na.rm=T)) %>%  View()
   gt() %>% 
+  fmt_number(columns = 3:5, 
+             decimals = 1) %>% 
   gtsave("tc.rtf")
 
 
