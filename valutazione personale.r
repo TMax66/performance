@@ -4,171 +4,152 @@ library(here)
 library(readxl)
 library(hrbrthemes)
 library(gt)
+library(ggcorset)
+library(readr)
 
  
 
 
-# valdip <- read_excel("PROGRAMMAZIONE/Relazione Performances 2020/VALUTAZIONE DIPENDENTI ANNO 2020 - NVP  SEDUTA DEL 12.03.2021.xls", 
-#                      col_types = c("text", "text", "text", 
-#                                    "text", "numeric", "numeric"))
-#    
-#    
-   
-   
-# valdip %>% 
-#    mutate(categ = cut(TOT, breaks = c(quantile(TOT, probs = c(0,0.10, 0.25, 0.5, 0.75, 1))), include.lowest = TRUE)) %>% 
-#    ggplot(aes(x=categ))+
-#    geom_bar()
- 
+# 1. carico i dati dal file excel estratto dall'applicativo obiettivistrategici....
 
-valdip <- read_excel("personale.xls", 
-                        col_types = c("text", "text", "text", 
-                                      "text", "numeric", "numeric"))
+dt <- read_excel("valutazioni.xlsx", 
+                          col_types = c("text", "text", "text", 
+                                        "text", "numeric", "numeric"))
 
-
-strutture <- read_excel("strutture.xlsx")
-
-
-
-dati20_21 <- valdip %>% 
-  filter(ANNO > 2019)
-
-
-valdip <- dati20_21 %>% 
-  mutate(REPARTO = recode(REPARTO,
-                          "S.T. PIACENZA E PARMA -" = "SEDE TERRITORIALE DI PIACENZA - PARMA",
-                          "S.T. PIACENZA E PARMA - - S.T. PARMA" = "SEDE TERRITORIALE DI PIACENZA - PARMA", 
-                          "REP. CHIM. DEGLI ALIMENTI E MANGIMI -" = "REPARTO CHIMICA DEGLI ALIMENTI E MANGIMI",
-                          "REP. CHIM. DEGLI ALIMENTI E MANGIMI - LABORATORIO CHIMICA APPLICATA ALLE TECNOLOGIE ALIMENTARI" = "REPARTO CHIMICA DEGLI ALIMENTI E MANGIMI", 
-                          "REP. CHIM. DEGLI ALIMENTI E MANGIMI - LABORATORIO CONTAMINATI AMBIENTALI BS" = "REPARTO CHIMICA DEGLI ALIMENTI E MANGIMI", 
-                          "REP. CHIMICO ALIMENTI BOLOGNA -" = "REPARTO CHIMICO DEGLI ALIMENTI (BOLOGNA)",
-                          "REP. CHIMICO ALIMENTI BOLOGNA - LABORATORIO CONTAMINANTI AMBIENTALI BOLOGNA" = "REPARTO CHIMICO DEGLI ALIMENTI (BOLOGNA)", 
-                          "REP. PRODUZIONE PRIMARIA -" = "REPARTO PRODUZIONE PRIMARIA", 
-                          "REP. PRODUZIONE PRIMARIA - LABORATORIO BATTERIOLOGIA SPECIALIZZATA" = "REPARTO PRODUZIONE PRIMARIA", 
-                          "REP. PRODUZIONE PRIMARIA - LABORATORIO DI VIROLOGIA E SIEROLOGIA SPECIALIZZATA E MICROSCOPIA ELETTRONICA" = "REPARTO PRODUZIONE PRIMARIA",
-                          "S.T. BOLOGNA, FERRARA E MODENA -" = "SEDE TERRITORIALE DI BOLOGNA - MODENA - FERRARA",
-                          "S.T. BOLOGNA, FERRARA E MODENA - - S.T. FERRARA" = "SEDE TERRITORIALE DI BOLOGNA - MODENA - FERRARA", 
-                          "S.T. BOLOGNA, FERRARA E MODENA - - S.T. MODENA" = "SEDE TERRITORIALE DI BOLOGNA - MODENA - FERRARA", 
-                          "S.T. REGGIO EMILIA -" = "SEDE TERRITORIALE DI REGGIO EMILIA",
-                          "REP. VIROLOGIA -" = "REPARTO VIROLOGIA",
-                          "REP. VIROLOGIA - LABORATORIO DI VIROLOGIA E SIEROLOGIA SPECIALIZZATA E MICROSCOPIA ELETTRONICA" = "REPARTO VIROLOGIA",
-                          "REP. VIROLOGIA - LABORATORIO PROTEOMICA E DIAGNOSTICA TSE" = "REPARTO VIROLOGIA",
-                          "REP. VIRUS VESCICOLARI E PRODUZIONI BIOTECNOLOGICHE -" = "REPARTO VIRUS VESCICOLARI E PRODUZIONI BIOTECNOLOGICHE",
-                          "REPARTO CONTROLLO ALIMENTI - LABORATORIO DIAGNOSTICA MOLECOLARE OGM" = "REPARTO VIRUS VESCICOLARI E PRODUZIONI BIOTECNOLOGICHE",
-                          "S.T. BERGAMO, SONDRIO E BINAGO -" = "SEDE TERRITORIALE DI BERGAMO - BINAGO - SONDRIO",
-                          "S.T. BERGAMO, SONDRIO E BINAGO - - S.T. BINAGO" = "SEDE TERRITORIALE DI BERGAMO - BINAGO - SONDRIO", 
-                          "S.T. BERGAMO, SONDRIO E BINAGO - - S.T. SONDRIO" = "SEDE TERRITORIALE DI BERGAMO - BINAGO - SONDRIO", 
-                          "S.T. BRESCIA -" = "SEDE TERRITORIALE DI BRESCIA",
-                          "S.T. CREMONA, MANTOVA -" = "SEDE TERRITORIALE DI CREMONA - MANTOVA",
-                          "S.T. CREMONA, MANTOVA - - S.T. MANTOVA" = "SEDE TERRITORIALE DI CREMONA - MANTOVA",
-                          "S.T. FORLI' E RAVENNA -" = "SEDE TERRITORIALE DI FORLÌ - RAVENNA",
-                          "S.T. FORLI' E RAVENNA - - S.T. FORLI'" = "SEDE TERRITORIALE DI FORLÌ - RAVENNA", 
-                          "S.T. FORLI' E RAVENNA - - S.T. RAVENNA" = "SEDE TERRITORIALE DI FORLÌ - RAVENNA",
-                          "S.T. LODI E MILANO -" = "SEDE TERRITORIALE DI LODI - MILANO",
-                          "S.T. LODI E MILANO - - S.T. LODI" = "SEDE TERRITORIALE DI LODI - MILANO",
-                          "S.T. LODI E MILANO - - S.T. MILANO" = "SEDE TERRITORIALE DI LODI - MILANO",
-                          "REPARTO CONTROLLO ALIMENTI -" = "REPARTO CONTROLLO ALIMENTI", 
-                          "REPARTO PRODUZIONE E CONTROLLO MATERIALE BIOLOGICO -" = "REPARTO PRODUZIONE E CONTROLLO MATERIALE BIOLOGICO", 
-                          "REPARTO PRODUZIONE E CONTROLLO MATERIALE BIOLOGICO - LABORATORIO PRODUZIONE TERRENI" = "REPARTO PRODUZIONE E CONTROLLO MATERIALE BIOLOGICO",
-                          "REPARTO PRODUZIONE E CONTROLLO MATERIALE BIOLOGICO - REPARTO SUBSTRATI CELLULARI E IMMUNOLOGIA CELLULARE" = "REPARTO PRODUZIONE E CONTROLLO MATERIALE BIOLOGICO",
-                          "REPARTO TECNOLOGIE BIOLOGICHE APPLICATE -" = "REPARTO TECNOLOGIE BIOLOGICHE APPLICATE", 
-                          "REPARTO TECNOLOGIE BIOLOGICHE APPLICATE - LABORATORIO BATTERIOLOGIA SPECIALIZZATA" = "REPARTO TECNOLOGIE BIOLOGICHE APPLICATE",
-                          "REPARTO TECNOLOGIE BIOLOGICHE APPLICATE - LABORATORIO DIAGNOSTICA MOLECOLARE OGM" = "REPARTO TECNOLOGIE BIOLOGICHE APPLICATE",
-                          "S.T. PAVIA -" = "SEDE TERRITORIALE DI PAVIA",
-                          "S.T. PAVIA - - S.T. MILANO" = "SEDE TERRITORIALE DI PAVIA", 
-                          "ANALISI DEL RISCHIO ED EPIDEMIOLOGIA GENOMICA -" = "ANALISI DEL RISCHIO ED EPIDEMIOLOGIA GENOMICA", 
-                          "SORVEGLIANZA EPIDEMIOLOGICA -" = "SORVEGLIANZA EPIDEMIOLOGICA",
-                          "SORVEGLIANZA EPIDEMIOLOGICA - SORVEGLIANZA EPIDEMIOLOGICA" = "SORVEGLIANZA EPIDEMIOLOGICA",
-                          "U.O. PROVV. ECONOMATO E VENDITE -" = "UO PROVVEDITORATO ECONOMATO E VENDITE",
-                          "U.O. PROVV. ECONOMATO E VENDITE - U.O. PROVV. ECONOMATO E VENDITE" = "UO PROVVEDITORATO ECONOMATO E VENDITE",
-                          "SERVIZIO ASSICURAZIONE QUALITA -" = "SERVIZIO ASSICURAZIONE QUALITA'",
-                          "U.O. AFFARI GENERALI E LEGALI -" = "U.O. AFFARI GENERALI E LEGALI",
-                          "U.O. TECNICO PATRIMONIALE -" = "UO TECNICO PATRIMONIALE",
-                          "U.O. TECNICO PATRIMONIALE - U.O. TECNICO PATRIMONIALE" = "UO TECNICO PATRIMONIALE", 
-                          "U.O. GESTIONE RISORSE UMANE E SVILUPPO COMPETENZE -" = "U.O. GESTIONE RISORSE UMANE E SVILUPPO COMPETENZE",
-                          "U.O. GESTIONE SERVIZI CONTABILI" = "U.O. GESTIONE SERVIZI CONTABILI",
-                          "U.O. GESTIONE SERVIZI CONTABILI - U.O. GESTIONE SERVIZI CONTABILI" = "U.O. GESTIONE SERVIZI CONTABILI",
-                          "PROGRAMMAZIONE DEI SERVIZI TECNICI E CONTROLLO DI GESTIONE -" = "Programmazione dei servizi tecnici e controllo di gestione",
-                          "FORMAZIONE -" =  "FORMAZIONE E BIBLIOTECA",
-                          "SISTEMI INFORMATIVI - SISTEMI INFORMATIVI" = "Programmazione dei servizi tecnici e controllo di gestione",
-                          "CONTROLLO DI GESTIONE -" = "Programmazione dei servizi tecnici e controllo di gestione", 
-                          "SEGRETERIA DIREZIONALE -" = "DIREZIONE GENERALE",
-                          "GESTIONE CENTRALIZZATA DELLE RICHIESTE DELL'UTENZA -" = "GESTIONE CENTRALIZZATA DELLE RICHIESTE", 
-                          "GESTIONE CENTRALIZZATA DELLE RICHIESTE DELL'UTENZA - U.O. PROVV. ECONOMATO E VENDITE" = "GESTIONE CENTRALIZZATA DELLE RICHIESTE"
-  )
+valutazioni <- dt %>% 
+  rename("Anno" = ANNO ) %>% 
+  mutate(categoria = ifelse(is.na(CATEGORIA), "DIRIGENZA", "COMPARTO" ))
+         
   
-  )  %>% 
-  left_join(
-    
-    (strutture %>% 
-       select(Dipartimento, Reparto) %>%
-       unique()),  by = c("REPARTO" = "Reparto"))  
 
 
 
-valdip %>% 
-   mutate(dirigenza = ifelse(is.na(CATEGORIA), "DIRIGENZA", "COMPARTO")) %>%  
-   #filter(dirigenza == "DIRIGENZA") %>% 
-   group_by(ANNO) %>% 
+valutazioni %>% 
+  filter(Anno == 2022) %>%  
+  mutate(VALUTATOMtr = parse_number(VALUTATO)) %>%  
+  select( VALUTATOMtr, categoria) %>%  
+  unique() %>% 
+  group_by(categoria) %>% 
+  count()
+
+
+#2. tabella complessiva della distribuzione dei punteggi di tutto il personale in diversi anni
+valutazioni %>%
+   group_by(Anno) %>% 
    summarise(min = min(TOT,na.rm=T), 
                        "25°percentile" = quantile(TOT, 0.25, na.rm = T), 
                        "mediana" = median(TOT,na.rm=T), 
                        "75°percentile" = quantile(TOT, 0.75, na.rm=T),
-                       max = max(TOT,na.rm=T)) %>%  View()
+                       max = max(TOT,na.rm=T), 
+             media = mean(TOT,na.rm = T), 
+             ds = sd(TOT, na.rm = T), 
+             n = n()) %>%   
   gt() %>% 
-  fmt_number(columns = 3:5, 
-             decimals = 1) %>% 
-  gtsave("tc.rtf")
+  fmt_number(columns = 3:8, 
+             decimals = 1) 
+
+#2.1 tabella dirigenti
+
+valutazioni %>%
+  filter(categoria == "DIRIGENZA") %>% 
+  group_by(Anno) %>% 
+  summarise(min = min(TOT,na.rm=T), 
+            "25°percentile" = quantile(TOT, 0.25, na.rm = T), 
+            "mediana" = median(TOT,na.rm=T), 
+            "75°percentile" = quantile(TOT, 0.75, na.rm=T),
+            max = max(TOT,na.rm=T), 
+            media = mean(TOT,na.rm = T), 
+            ds = sd(TOT, na.rm = T), 
+            n = n()) %>%   
+  gt() %>% 
+  fmt_number(columns = 3:8, 
+             decimals = 1) 
 
 
 
-   kbl(booktabs = TRUE, caption = "Distribuzione dei punteggi di valutazione del personale IZSLER nel triennio 2019-2021") %>% 
-   kable_styling()
+#2.2 tabella comparto
+
+valutazioni %>%
+  filter(categoria == "COMPARTO") %>% 
+  group_by(Anno) %>% 
+  summarise(min = min(TOT,na.rm=T), 
+            "25°percentile" = quantile(TOT, 0.25, na.rm = T), 
+            "mediana" = median(TOT,na.rm=T), 
+            "75°percentile" = quantile(TOT, 0.75, na.rm=T),
+            max = max(TOT,na.rm=T), 
+            media = mean(TOT,na.rm = T), 
+            ds = sd(TOT, na.rm = T), 
+            n = n()) %>%   
+  gt() %>% 
+  fmt_number(columns = 3:8, 
+             decimals = 1) 
 
 
-   
-   
-   
-
-
-
-ptot <- valdip %>% 
-   filter(ANNO == 2021) %>% 
+  
+# 3. grafico complessivo 
+ptot <- valutazioni %>% 
+   filter(Anno == 2022) %>% 
    ggplot(aes(x = TOT))+
-   geom_histogram(bins = 10, col= "grey", fill= "steelblue")+
+   geom_histogram(bins = 50, col= "grey", fill= "steelblue")+
+  # geom_density()+
+  xlim(50,100)+
    labs(x= "valutazione", y= "n.personale IZSLER", 
-        subtitle = "Valutazione del personale IZSLER anno 2021 ")+
+        subtitle = "Distribuzione della valutazione del personale IZSLER anno 2022 ")+
    theme_ipsum_rc()+
    geom_vline(aes(xintercept = median(TOT, na.rm = TRUE)), color = "red")+
-   geom_text(aes(x = median(TOT, na.rm =TRUE ), y = 200, label = paste("Mediana = ", round(median(TOT, na.rm = TRUE),2))))
+   geom_text(aes(x = 80, y = 100, label = paste("Mediana = ", round(median(TOT, na.rm = TRUE),2))))
+
+
+
+#4. grafico dirigenti
    
-pdir <-valdip %>% 
-   filter(ANNO == 2021) %>% 
-   mutate(dirigenza = ifelse(is.na(CATEGORIA), "DIRIGENZA", "COMPARTO")) %>%  
-   filter(dirigenza == "DIRIGENZA") %>% 
+pdir <-valutazioni %>% 
+   filter(Anno == 2022) %>% 
+   filter(categoria == "DIRIGENZA") %>% 
    ggplot(aes(x = TOT))+
-   geom_histogram(bins = 10, col= "grey", fill= "steelblue")+
+   geom_histogram(bins = 50, col= "grey", fill= "steelblue")+
    geom_vline(aes(xintercept = median(TOT)), color = "red")+
-   geom_text(aes(x = 97, y = 28, label = paste("Mediana = ", 97)))+
+  xlim(50,100)+
+   geom_text(aes(x = 80, y = 15, label = paste("Mediana = ", 97)))+
    labs(x= "valutazione", y= "n. personale dirigente", 
-        subtitle = "Valutazione personale della dirigenza")+
+        subtitle = "Distribuzione della valutazione del personale dirigente anno 2022")+
    theme_ipsum_rc()
 
-pcomp <- valdip %>% 
-   filter(ANNO== 2021) %>% 
-   mutate(dirigenza = ifelse(is.na(CATEGORIA), "DIRIGENZA", "COMPARTO")) %>%  
-   filter(dirigenza == "COMPARTO") %>% 
+#5. grafico comparto
+pcomp <- valutazioni %>% 
+   filter(Anno== 2022,  
+          categoria == "COMPARTO") %>%   
    ggplot(aes(x = TOT))+
-   geom_histogram(bins = 11, col= "grey", fill= "steelblue")+
-   geom_text(aes(x = 98, y = 100, label = paste("Mediana = ", 98)))+
+   geom_histogram(bins = 50, col= "grey", fill= "steelblue")+
+   geom_text(aes(x = 80, y = 100, label = paste("Mediana = ", 98)))+
    geom_vline(aes(xintercept = median(TOT, na.rm = TRUE)), color = "red")+
+  xlim(50, 100)+
    labs(x= "valutazione", y= "n. personale di comparto", 
-        subtitle = "Valutazione personale del comparto")+
+        subtitle = "Distribuzione della valutazione del personale di comparto anno 2022")+
    theme_ipsum_rc()
 
 library(patchwork)
 ptot/
   (pdir|pcomp)
+
+
+valutazioni %>% 
+  ggplot(
+    aes(x = Anno,
+        y = TOT, 
+        group = Anno)
+  )+
+  geom_violin()+
+  geom_jitter(alpha = 0.1)+
+  stat_summary(fun = "median", color = "red")+
+  facet_wrap(~ categoria, scales = "free")+
+  theme_ipsum_rc()+
+  labs(x= "Anno", y= "valutazione in punti %")
+  
+  
+
+
+
 
 
 
@@ -188,6 +169,12 @@ valdip %>%
   group_by(ANNO, score) %>% 
   count() %>% View()
   
+
+
+
+
+
+
 
 
 ###score by dipartimento 2021---
@@ -266,3 +253,47 @@ valdip %>%
                         ifelse(TOT > 50 & TOT < 95, " da > 50 a <95", "fino a 50"))) %>% 
   group_by(ANNO, score) %>% 
   count() %>% View()
+
+
+
+######grafico variazione punteggio per individuo######
+valdip <- read_excel("personale.xls", 
+                    col_types = c("text", "text", "text", 
+                                  "text", "numeric", "numeric"))
+
+
+strutture <- read_excel("strutture.xlsx")
+
+
+
+dati20_21 <- valdip %>% 
+  filter(ANNO > 2019)
+
+
+dtwide <- dati20_21 %>% 
+mutate(dirigenza = ifelse(is.na(CATEGORIA), "DIRIGENZA", "COMPARTO")) %>%   
+  pivot_wider(names_from = "ANNO", values_from = "TOT") %>% 
+  mutate(change = `2021`-`2020`,  
+  direction  = ifelse( change<0,"Diminuzione",
+                                ifelse( change>0,"Aumento","Invariato")
+                       ),
+ direction = factor(direction, 
+                              levels = c("Aumento","Invariato","Diminuzione"))) %>%   
+  filter(!is.na(direction) & dirigenza == "DIRIGENZA" ) %>% View()
+  # group_by(direction) %>% 
+  # count()
+ 
+  
+
+  gg_corset(., y_var1 = "2020", y_var2 = "2021", c_var = "direction", group="VALUTATO", faceted = T)+
+  theme_ggcorset()+
+  scale_x_discrete(labels = c("2020","2021"))+ labs(x = "", y = "valutazione")
+  
+
+  
+
+
+# group_by(direction) %>% 
+# count()
+#  
+

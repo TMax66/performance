@@ -42,18 +42,18 @@ query <- myfun(con=conSB, q=q, tabella = "vSchedaBudget")
 dati <- conSB %>% tbl(sql(query)) %>% as_tibble()
 
 
-# perf <- dati %>% 
-#   filter(!str_detect(ObiettivoOperativo,"2.1.9."), 
-#          Anno == "2022", 
-#          !Indicatore %in% c("% di attività realizzata nell'anno 2022 per l'incarico di Direttore di Dipartimento",
-#                             "% incremento indicatori griglia di valutazione PRC", 
-#                             "% utilizzo budget PRF"), 
-#          ValoreInRendiconto != -1)
+perf <- dati %>% 
+  filter(!str_detect(ObiettivoOperativo,"2.1.9."), 
+         Anno == "2022", 
+         !Indicatore %in% c("% di attività realizzata nell'anno 2022 per l'incarico di Direttore di Dipartimento",
+                            "% incremento indicatori griglia di valutazione PRC", 
+                            "% utilizzo budget PRF"), 
+         ValoreInRendiconto != -1)
 
 
 
 perf <-  perf %>% 
-  filter(Periodo == 1) %>% 
+  filter(Periodo == 2) %>% 
   mutate( AS = substr(AreaStrategica, start = 1, stop = 3), 
           AreaStrategica = recode( AS, 
                                    AS1 = "AS1-ATTIVITA' ISTITUZIONALE", 
