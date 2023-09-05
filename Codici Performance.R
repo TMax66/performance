@@ -41,6 +41,8 @@ query <- myfun(con=conSB, q=q, tabella = "vSchedaBudget")
  
 dati <- conSB %>% tbl(sql(query)) %>% as_tibble()
 
+saveRDS(dati, file = "datiperformance.RDS")
+
 
 # perf <- dati %>% 
 #   filter(!str_detect(ObiettivoOperativo,"2.1.9."), 
