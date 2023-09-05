@@ -139,7 +139,9 @@ perf %>%
   summarise(media = 100*mean(Avanzamento,na.rm  = T)) %>%
   ungroup() %>% 
   pivot_wider(names_from = AreaStrategica, values_from = media) %>%   
-  gt() %>% 
+  arrange(Dipartimento) %>% 
+ # column_to_rownames("Dipartimento") %>%  
+  gt(rowname_col = "Dipartimento") %>%  
   fmt_number(columns = 2:5,decimals = 2) %>% 
   sub_missing(
     columns = 2:5,
