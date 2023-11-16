@@ -47,6 +47,12 @@ saveRDS(dati, file = "datiperformance.RDS")
 
 dati <- readRDS("datiperformance.RDS")
 
+
+dati %>% 
+  select(ObiettivoGenerale) %>% 
+  distinct() %>% 
+  coun
+
 # perf <- dati %>% 
 #   filter(!str_detect(ObiettivoOperativo,"2.1.9."), 
 #          Anno == "2022", 
@@ -102,6 +108,14 @@ perf <-  dati %>%
                                                          "DIPARTIMENTO AREA TERRITORIALE LOMBARDIA",
                                                          "DIPARTIMENTO AREA TERRITORIALE EMILIA ROMAGNA"))) 
 
+
+View(perf)
+
+perf %>% 
+  select(Indicatore) %>% 
+  distinct() %>% 
+  count()
+
 perf %>% 
   select(AreaStrategica,Dipartimento, Reparto, Struttura, Indicatore,  Periodo, Target, ValoreInRendiconto, Avanzamento) %>%  
   group_by(AreaStrategica) %>% 
@@ -109,7 +123,8 @@ perf %>%
   ungroup %>% 
   add_row(AreaStrategica = 'Livello Sintetico di Ente', !!! colMeans(.[-1]))
 
-
+perf %>% 
+  summarise(media = 100*round(mean(Avanzamento,na.rm  = T),2))
  
 
 # perf %>% rename( "Area Strategica" = AreaStrategica ) %>%   
@@ -117,13 +132,14 @@ perf %>%
 
 
 library(flexdashboard)
-gauge(46, min= 0, max = 100, symbol = '%',
+gauge(52, min= 0, max = 100, symbol = '%',
       gaugeSectors(success = c(0,100),   colors = "steelblue"))
+
 
 perf %>% 
   group_by(AreaStrategica) %>% 
   summarise(media = 100*mean(Avanzamento,na.rm  = T)) %>%
-  ungroup() %>%  
+  ungroup() %>%  View()
   #pivot_wider(names_from = Dipartimento, values_from = media) %>%  
   gt() %>% 
   fmt_number(columns = 2,decimals = 2) %>% 
@@ -136,7 +152,7 @@ perf %>%
 
 perf %>% 
   group_by(AreaStrategica, Dipartimento)  %>% 
-  summarise(media = 100*mean(Avanzamento,na.rm  = T)) %>%
+  summarise(media = 100*mean(Avanzamento,na.rm  = T)) %>% View()
   ungroup() %>% 
   pivot_wider(names_from = AreaStrategica, values_from = media) %>%   
   arrange(Dipartimento) %>% 
@@ -149,31 +165,34 @@ perf %>%
  
   
   
-  
+  perf %>% 
+    filter(AreaStrategica == "AS1-ATTIVITA' ISTITUZIONALE") %>% 
+    summarise(n = n(), 
+              s = sum(Avanzamento, na.rm = TRUE))
   
   
 
   
 
-Area <-  perf %>%
-  filter(Periodo == 1  ) %>%
-  mutate(MacroArea = factor(MacroArea)) %>%
-  group_by(MacroArea) %>%
-  summarise(mediana =  round(median(Avanzamento, na.rm = T),2),
-            media = round(mean(Avanzamento,na.rm  = T),2),
-            n = n()) %>%
-  mutate(mediana = percent(mediana),
-         mediana = as.character(mediana),
-         media = percent(media),
-         media = as.character(media)) %>%
-  #pivot_wider(names_from = "Dipartimento", values_from = "mediana", values_fill = " ") %>%
-  arrange(MacroArea) %>%
-  mutate(MacroArea = as.character(MacroArea)) %>%
-  mutate(MacroArea = gsub("\\d+", "", MacroArea),
-         MacroArea = gsub("\"", "", MacroArea))  %>%
-  kbl( ) %>%
-  kable_styling() %>%
-  kable_paper(bootstrap_options = "striped", full_width = F)
+# Area <-  perf %>%
+#   filter(Periodo == 1  ) %>%
+#   mutate(MacroArea = factor(MacroArea)) %>%
+#   group_by(MacroArea) %>%
+#   summarise(mediana =  round(median(Avanzamento, na.rm = T),2),
+#             media = round(mean(Avanzamento,na.rm  = T),2),
+#             n = n()) %>%
+#   mutate(mediana = percent(mediana),
+#          mediana = as.character(mediana),
+#          media = percent(media),
+#          media = as.character(media)) %>%
+#   #pivot_wider(names_from = "Dipartimento", values_from = "mediana", values_fill = " ") %>%
+#   arrange(MacroArea) %>%
+#   mutate(MacroArea = as.character(MacroArea)) %>%
+#   mutate(MacroArea = gsub("\\d+", "", MacroArea),
+#          MacroArea = gsub("\"", "", MacroArea))  %>%
+#   kbl( ) %>%
+#   kable_styling() %>%
+#   kable_paper(bootstrap_options = "striped", full_width = F)
   # 
   # 
   # #Polar plot avanzamento per Area----
